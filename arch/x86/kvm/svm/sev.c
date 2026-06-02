@@ -4568,7 +4568,7 @@ static void sev_get_apic_ids(struct vcpu_svm *svm)
 	desc->num_entries = n;
 	kvm_for_each_vcpu(i, loop_vcpu, kvm) {
 		/*TODO: is this possible? */
-		if (i > n)
+		if (i >= n)
 			break;
 
 		desc->apic_ids[i] = loop_vcpu->vcpu_id;
