@@ -440,7 +440,7 @@ void *kvm_mmu_memory_cache_alloc(struct kvm_mmu_memory_cache *mc)
 
 static int kvm_vcpu_init_common(struct kvm_vcpu *vcpu, struct kvm *kvm, unsigned long id)
 {
-	struct kvm_vcpu_common *common = kzalloc(sizeof(*common), GFP_KERNEL_ACCOUNT);
+	struct kvm_vcpu_common *common __free(kfree) = kzalloc(sizeof(*common), GFP_KERNEL_ACCOUNT);
 	struct page *page;
 	int r;
 
@@ -503,7 +503,7 @@ static int kvm_vcpu_init_common(struct kvm_vcpu *vcpu, struct kvm *kvm, unsigned
 	if (r)
 		goto out_free_dirty_ring;
 
-	vcpu->common = common;
+	vcpu->common = no_free_ptr(common);
 
 	kvm_vcpu_set_in_spin_loop(vcpu, false);
 	kvm_vcpu_set_dy_eligible(vcpu, false);
@@ -518,8 +518,6 @@ out_drop_counter:
 	mutex_lock(&kvm->lock);
 	kvm->created_vcpus--;
 	mutex_unlock(&kvm->lock);
-
-	kfree(common);
 
 	return r;
 }
